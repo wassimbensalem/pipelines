@@ -1,0 +1,170 @@
+# PIPELINE DEFINITION
+# Name: display-name-test-pipeline
+# Description: Test pipeline with display_name set on tasks.
+components:
+  comp-consumer:
+    executorLabel: exec-consumer
+    inputDefinitions:
+      parameters:
+        text:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-producer:
+    executorLabel: exec-producer
+    inputDefinitions:
+      parameters:
+        text:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-producer-2:
+    executorLabel: exec-producer-2
+    inputDefinitions:
+      parameters:
+        text:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-consumer:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - consumer
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.13.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef consumer(text: str) -> str:\n    \"\"\"Consumer component.\"\"\
+          \"\n    print(f\"Consuming: {text}\")\n    return text\n\n"
+        image: python:3.9
+    exec-producer:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - producer
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.13.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef producer(text: str) -> str:\n    \"\"\"Producer component.\"\"\
+          \"\n    print(f\"Producing: {text}\")\n    return text\n\n"
+        image: python:3.9
+    exec-producer-2:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - producer
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.13.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef producer(text: str) -> str:\n    \"\"\"Producer component.\"\"\
+          \"\n    print(f\"Producing: {text}\")\n    return text\n\n"
+        image: python:3.9
+pipelineInfo:
+  description: Test pipeline with display_name set on tasks.
+  name: display-name-test-pipeline
+root:
+  dag:
+    tasks:
+      consumer:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-consumer
+        dependentTasks:
+        - producer
+        inputs:
+          parameters:
+            text:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: producer
+        taskInfo:
+          name: Data Consumer
+      producer:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-producer
+        inputs:
+          parameters:
+            text:
+              runtimeValue:
+                constant: Hello World
+        taskInfo:
+          name: Data Producer
+      producer-2:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-producer-2
+        inputs:
+          parameters:
+            text:
+              runtimeValue:
+                constant: No Display Name
+        taskInfo:
+          name: producer-2
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.13.0

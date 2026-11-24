@@ -1,0 +1,280 @@
+# PIPELINE DEFINITION
+# Name: pipeline-with-dict-parameter-access
+# Description: Pipeline demonstrating dict parameter access.
+#              Features demonstrated:
+#              - Single-level access: config['app_name']
+#              - Nested access: config['database']['host']
+#              - Deep nested access: config['database']['credentials']['username']
+#              - Sub-dict passing: config['database']
+# Inputs:
+#    config: dict [Default: {'database': {'host': 'localhost', 'port': '5432', 'credentials': {'password': 'secret', 'username': 'admin'}}, 'app_name': 'TestApp'}]
+components:
+  comp-print-dict:
+    executorLabel: exec-print-dict
+    inputDefinitions:
+      parameters:
+        config:
+          parameterType: STRUCT
+  comp-print-string:
+    executorLabel: exec-print-string
+    inputDefinitions:
+      parameters:
+        text:
+          parameterType: STRING
+  comp-print-string-2:
+    executorLabel: exec-print-string-2
+    inputDefinitions:
+      parameters:
+        text:
+          parameterType: STRING
+  comp-print-string-3:
+    executorLabel: exec-print-string-3
+    inputDefinitions:
+      parameters:
+        text:
+          parameterType: STRING
+  comp-use-credentials:
+    executorLabel: exec-use-credentials
+    inputDefinitions:
+      parameters:
+        password:
+          parameterType: STRING
+        username:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-print-dict:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - print_dict
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.14.6'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef print_dict(config: dict):\n    print(config)\n\n"
+        image: python:3.11
+    exec-print-string:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - print_string
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.14.6'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef print_string(text: str):\n    print(text)\n\n"
+        image: python:3.11
+    exec-print-string-2:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - print_string
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.14.6'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef print_string(text: str):\n    print(text)\n\n"
+        image: python:3.11
+    exec-print-string-3:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - print_string
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.14.6'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef print_string(text: str):\n    print(text)\n\n"
+        image: python:3.11
+    exec-use-credentials:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - use_credentials
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.14.6'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef use_credentials(username: str, password: str):\n    print(f'User:\
+          \ {username}, Pass: {password}')\n\n"
+        image: python:3.11
+pipelineInfo:
+  description: 'Pipeline demonstrating dict parameter access.
+
+    Features demonstrated:
+
+    - Single-level access: config[''app_name'']
+
+    - Nested access: config[''database''][''host'']
+
+    - Deep nested access: config[''database''][''credentials''][''username'']
+
+    - Sub-dict passing: config[''database'']'
+  name: pipeline-with-dict-parameter-access
+root:
+  dag:
+    tasks:
+      print-dict:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-print-dict
+        inputs:
+          parameters:
+            config:
+              componentInputParameter: config
+              parameterExpressionSelector: parseJson(string_value)["database"]
+        taskInfo:
+          name: print-dict
+      print-string:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-print-string
+        inputs:
+          parameters:
+            text:
+              componentInputParameter: config
+              parameterExpressionSelector: parseJson(string_value)["app_name"]
+        taskInfo:
+          name: print-string
+      print-string-2:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-print-string-2
+        inputs:
+          parameters:
+            text:
+              componentInputParameter: config
+              parameterExpressionSelector: parseJson(string_value)["database"]["host"]
+        taskInfo:
+          name: print-string-2
+      print-string-3:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-print-string-3
+        inputs:
+          parameters:
+            text:
+              componentInputParameter: config
+              parameterExpressionSelector: parseJson(string_value)["database"]["port"]
+        taskInfo:
+          name: print-string-3
+      use-credentials:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-use-credentials
+        inputs:
+          parameters:
+            password:
+              componentInputParameter: config
+              parameterExpressionSelector: parseJson(string_value)["database"]["credentials"]["password"]
+            username:
+              componentInputParameter: config
+              parameterExpressionSelector: parseJson(string_value)["database"]["credentials"]["username"]
+        taskInfo:
+          name: use-credentials
+  inputDefinitions:
+    parameters:
+      config:
+        defaultValue:
+          app_name: TestApp
+          database:
+            credentials:
+              password: secret
+              username: admin
+            host: localhost
+            port: '5432'
+        isOptional: true
+        parameterType: STRUCT
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.14.6
